@@ -6,9 +6,11 @@
   "repository": "github.com/UrbanTrails/UrbanTrails",
   "author": "Legion",
   "license": "MIT",
-  "eslintIgnore": ["build.js"],
+  "eslintIgnore": [
+    "build.js"
+  ],
   "scripts": {
-    "start": "yarn | npm run vue:dev | npm run dev:start",
+    "start": "yarn && npm run vue:dev & npm run dev:start",
     "vue:dev": "webpack -d --watch",
     "dev:start": "nodemon -e js,jsx --ignore lib --ignore dist --exec babel-node src/server",
     "test": "yarn lint && jest --coverage",
@@ -23,7 +25,8 @@
     "husky": "^0.14.3",
     "inert": "^4.2.1",
     "jest": "^20.0.4",
-    "vue": "^2.4.2"
+    "vue": "^2.4.2",
+    "vue-template-compiler": "^2.4.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
