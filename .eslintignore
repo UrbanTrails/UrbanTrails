@@ -7,6 +7,4 @@
 
 webpack.config.js
 
-./src/client/dist/*.js
-
 /src/client/dist/

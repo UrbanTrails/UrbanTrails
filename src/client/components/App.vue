@@ -2,11 +2,8 @@
   <div>
     <h1>Welcome</h1>
     <Home></Home>
-    <!-- <p>{{ status }}</p> -->
-    <!-- <p>{{ count }}</p> -->
     <leafletMap></leafletMap>
-    <!-- <button @click="changeStatus">Change Status</button> -->
-  </div>
+</div>
 </template>
 
 <script>
