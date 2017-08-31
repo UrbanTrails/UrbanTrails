@@ -9,7 +9,7 @@
   export default {
     mounted: function () {
     },
-    computed: {
-    }
+  computed: {
+     }
   }
-  </script>
+</script>

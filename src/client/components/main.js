@@ -8,11 +8,14 @@ import App from './App.vue'
 // other components
 import Map from './Map.vue'
 import leafletMap from './leafletMap.vue'
+import Home from './Home.vue'
 
 Vue.use(VueAsyncData)
 
 // register component to be used globally including inside other components
 Vue.component('Map', Map)
+Vue.component('App', App)
+Vue.component('Home', Home)
 Vue.component('leafletMap', leafletMap)
 Vue.component('v-map', Vue2Leaflet.Map)
 Vue.component('v-tilelayer', Vue2Leaflet.TileLayer)
