@@ -1,0 +1,839 @@
+/*
+Copyright - 2015 2017 - Christian Guyette - Contact: http//www.ouaie.be/
+
+This  program is free software;
+you can redistribute it and/or modify it under the terms of the 
+GNU General Public License as published by the Free Software Foundation;
+either version 3 of the License, or any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+ ( function ( ) {
+
+	'use strict';
+
+	/* 
+	--- L.Marker.Pin.Pins object -----------------------------------------------------------------------------------------------
+	
+	This object is a collection of all pins added to the map
+	
+	Patterns : Closure and Singleton.
+
+ 	v1.2.0:
+	- Added _asHtmlElement ( ) private method
+	- Added _updateControl ( ) private method
+	- push ( ) and remove ( ) methods returns a value
+	- Added order ( ) public method
+	- Added zoomTo ( ) public method
+	- Added LatLngBounds public read only property
+	- Added asHtmlElement ( ) public method
+	- Doc reviewed 20160216
+	- No automated unit tests for this object
+
+ 	v1.2.4:
+	- added the 'read only' pins
+	- in the _asHtmlElement ( ) method:
+		- added the distance property
+		- and nextDistance  property for pins linked to a 'direction' category
+		- added a <span> tag in the title of address phone url and distance
+	- pins are sorted based on the distance when added to the collection, if the distance is > 0
+	- added a show ( ) and hide ( ) method 
+	- added getter and setter for readOnly
+	
+	------------------------------------------------------------------------------------------------------------------------
+	*/
+
+	/* --- private properties outside of the constructor due to the singleton pattern --- */
+
+	var _Pins = []; // the pin's collection
+	var _NextPinId = 0; // The next pin id to use
+	var _PageLoad = true;
+	var _CallbackFunction = function ( ) {console.log ( '_CallbackFunction ( )');};
+	var _ReadOnly = false;
+	
+	/* 
+	--- getPins ( ) function --- 
+	
+	This function gives a collection of the created pins
+	
+	*/
+
+	L.Marker.Pin.getPins = function () {
+		
+		/* --- private properties --- */
+		
+		var _Translator;
+		if ( typeof module !== 'undefined' && module.exports ) {
+			_Translator = require ('./L.Marker.Pin.Translator' );
+		}
+		else {
+			_Translator = L.marker.pin.translator ( );
+		}
+
+		var _Categories;
+		if ( typeof module !== 'undefined' && module.exports ) {
+			_Categories = require ('./L.Marker.Pin.Categories' );
+		}
+		else {
+			_Categories = L.marker.pin.categories ( );
+		}
+		
+		/* --- private methods --- */
+
+		/* 
+		--- _asHtmlElement ( options ) method --- 
+		
+		this method returns an HTMLElement with the pin's data
+		
+		See the L.Marker.Pin.Interface.PinsHtlmlOptions property for the options values
+		
+		*/
+				
+		var _asHtmlElement = function ( options ) {
+
+			if ( ! options.mainElement ) { options.mainElement = 'div'; }
+			if ( ! options.pinElement ) { options.pinElement = 'div'; }
+			if ( ! options.categoryElement ) { options.categoryElement = 'div'; }
+			if ( ! options.textElement ) { options.textElement = 'div'; }
+			if ( ! options.addressElement ) { options.addressElement = 'div'; }
+			if ( ! options.phoneElement ) { options.phoneElement = 'div'; }
+			if ( ! options.urlElement ) { options.urlElement = 'div'; }
+			if ( ! options.urlLength ) { options.urlLength = 9999; }
+			if ( ! options.distanceElement ) { options.distanceElement = 'div'; }
+			if ( ! options.nextDistanceElement ) { options.nextDistanceElement = 'div'; }
+			if ( ! options.distanceUnits ) { options.distanceUnits = 'km'; }
+
+			var startDistance = 0;
+			var pinsCounter = 0;
+			var startPin = 0;
+			for ( pinsCounter = 0; pinsCounter < _Pins.length ; pinsCounter ++ )
+			{
+				if ( ( '28' === _Pins [ pinsCounter ].options.pinCategory.CategoryId ) && ( _Pins [ pinsCounter ].options.distance ) && ( 0 < _Pins [ pinsCounter ].options.distance ) ) {
+					startDistance = _Pins [ pinsCounter ].options.distance;
+					startPin = pinsCounter;
+					break;
+				}
+			}
+			
+			var nextDistanceArray = [ _Pins.length ];
+			for ( pinsCounter = 0; pinsCounter < _Pins.length ; pinsCounter ++ )
+			{
+				nextDistanceArray [ pinsCounter ] = -1;
+			}
+			var nextDistance = -1;
+			for ( pinsCounter = _Pins.length - 1; pinsCounter >= startPin ; pinsCounter -- )
+			{
+				var pin = _Pins [ pinsCounter ];
+				if ( ( 18 === parseInt ( pin.options.pinCategory.CategoryId ) ) || ( 27 < parseInt ( pin.options.pinCategory.CategoryId )  &&  70 > parseInt ( pin.options.pinCategory.CategoryId ) )  ) {
+					if ( 0 <= pin.options.distance )
+					{
+						if ( -1 < nextDistance ) {
+							nextDistanceArray [ pinsCounter ] = nextDistance - ( ( 28 === parseInt ( pin.options.pinCategory.CategoryId ) ) ? 0 : pin.options.distance );
+						}
+						nextDistance = pin.options.distance;
+					}
+				}
+			}
+
+			var MainElement = document.createElement ( options.mainElement );
+			if ( options.mainClass ) {
+				MainElement.className = options.mainClass;
+			}
+
+			for ( var Counter = 0; Counter < _Pins.length; Counter++ ) {
+				var Pin = _Pins [ Counter ];
+				
+				var PinElement = document.createElement ( options.pinElement );
+				var ClassName = 'Pin-CategoryId-' + Pin.options.pinCategory.CategoryId;
+				if ( options.pinClass ) {
+					ClassName = ClassName + ' ' + options.pinClass;
+				}
+				PinElement.className = ClassName;
+				PinElement.draggable = true;
+				PinElement.dataset.pinRange = Counter.toString ( );
+				L.DomEvent.on ( 
+					PinElement, 
+					'dragover', 
+					function ( Event ) 
+					{ 
+						Event.preventDefault ( );
+					}
+				);
+				var CategoryImgElement;
+				if ( Pin.options.pinCategory.CategoryIcon.options.html ) {
+					CategoryImgElement = document.createElement ( 'div' );
+					PinElement.appendChild ( CategoryImgElement );
+					CategoryImgElement.outerHTML = Pin.options.pinCategory.CategoryIcon.options.html;
+				}
+				else {
+					CategoryImgElement = document.createElement ( 'img' );
+					CategoryImgElement.setAttribute ( 'src', Pin.options.pinCategory.CategoryIcon.options.iconUrl );
+					CategoryImgElement.draggable = false;
+					if ( options.categoryImgClass ) {
+						CategoryImgElement.className = options.categoryImgClass;
+					}
+					PinElement.appendChild ( CategoryImgElement );
+				}
+				
+				var CategoryElement = document.createElement ( options.categoryElement );
+				if ( options.categoryClass ) {
+					CategoryElement.className = options.categoryClass;
+				}
+				
+				var CategoryNode = document.createTextNode ( Pin.options.pinCategory.CategoryName );
+				
+				CategoryElement.appendChild ( CategoryNode );
+				PinElement.appendChild ( CategoryElement );
+				
+				if ( Pin.options.text && 0 < Pin.options.text.length )
+				{
+					var TextElement = document.createElement ( options.textElement );
+					if ( options.textClass ) {
+						TextElement.className = options.textClass;
+					}
+					TextElement.innerHTML = Pin.options.text;
+					PinElement.appendChild ( TextElement );
+				}
+
+				if ( Pin.options.address && 0 < Pin.options.address.length )
+				{
+					var AddressElement = document.createElement ( options.addressElement );
+					if ( options.addressClass ) {
+						AddressElement.className = options.addressClass;
+					}
+					AddressElement.innerHTML = '<span>' + _Translator.getText ( 'L.Marker.Pin.Pins.asHtmlElement.Address' ) + '</span>' + Pin.options.address;
+					PinElement.appendChild ( AddressElement );
+				}
+
+				if ( Pin.options.phone && 0 < Pin.options.phone.length )
+				{
+					var PhoneElement = document.createElement ( options.phoneElement );
+					if ( options.phoneClass ) {
+						PhoneElement.className = options.phoneClass;
+					}
+					PhoneElement.innerHTML = '<span>' + _Translator.getText ( 'L.Marker.Pin.Pins.asHtmlElement.Phone' ) + '</span>' + Pin.options.phone;
+					PinElement.appendChild ( PhoneElement );
+				}
+
+				if ( Pin.options.url && 0 < Pin.options.url.length )
+				{
+					var UrlElement = document.createElement ( options.urlElement );
+					if ( options.urlClass ) {
+						UrlElement.className = options.urlClass;
+					}
+					UrlElement.innerHTML = '<span>' + _Translator.getText ( 'L.Marker.Pin.Pins.asHtmlElement.Url' ) + '</span>';
+					var UrlAnchorElement = document.createElement ( 'a' );
+					var urlText = Pin.options.url;
+					if ( urlText.length > options.urlLength ) {
+						urlText = urlText.slice ( 0, options.urlLength ) + ' ...';
+					}
+						
+					var UrlAnchorNode = document.createTextNode ( urlText );
+					UrlAnchorElement.appendChild ( UrlAnchorNode );
+					UrlAnchorElement.setAttribute ( 'href', Pin.options.url );
+					UrlAnchorElement.setAttribute ( 'title', Pin.options.url );
+					UrlAnchorElement.setAttribute ( 'target', '_blank' );
+					UrlElement.appendChild ( UrlAnchorElement );
+					PinElement.appendChild ( UrlElement );
+				}
+				if ( Pin.options.distance && 0 < Pin.options.distance )
+				{
+					var distanceElement = document.createElement ( options.distanceElement );
+					if ( options.distanceClass ) {
+						distanceElement.className = options.distanceClass;
+					}
+					distanceElement.innerHTML = '<span>' + 
+						_Translator.getText ( 'L.Marker.Pin.Pins.asHtmlElement.Distance' ) +
+						' </span>' + 
+						( ( startPin !== Counter ? startDistance : 0 ) + Pin.options.distance).toFixed ( 3 ) + 
+						' ' + 
+						options.distanceUnits;
+					PinElement.appendChild ( distanceElement );
+				}
+				if ( -1 !== nextDistanceArray [ Counter ] ) {
+					var nextDistanceElement = document.createElement ( options.nextDistanceElement );
+					if ( options.nextDistanceClass ) {
+						nextDistanceElement.className = options.nextDistanceClass;
+					}
+					nextDistanceElement.innerHTML = '<span>' + 
+						_Translator.getText ( 'L.Marker.Pin.Pins.asHtmlElement.nextDistance' ) +
+						' </span>' + 
+						nextDistanceArray [ Counter ].toFixed ( 3 ) + 
+						' ' + 
+						options.distanceUnits;
+					PinElement.appendChild ( nextDistanceElement );
+				}
+				
+				MainElement.appendChild ( PinElement );
+			}
+
+			return MainElement;
+		};
+
+		/* 
+		--- _updateControl ( ) method --- 
+		
+		This method update the pins control
+		
+		*/
+		
+		var _updateControl = function ( ) {
+			if ( document.getElementById ) {
+				var MaindivElement = document.getElementById ( 'PinControl-MainDiv' );
+				var OldPinsElement = document.getElementById ( 'PinControl-Pins' );
+				if ( MaindivElement && OldPinsElement )
+				{
+					var NewPinsElement = _asHtmlElement ( 
+						{ 
+							mainElement : 'div',
+							mainClass : "PinControl-Pins" , 
+							pinElement : 'div',
+							pinClass : "PinControl-Pin" , 
+							categoryElement : 'div',
+							categoryClass : "PinControl-Category" , 
+							CategoryImgClass : "PinControl-Category-Img",
+							textElement : 'div',
+							textClass : "PinControl-Text" , 
+							addressElement : 'div',
+							addressClass : "PinControl-Address" , 
+							phoneElement : 'div',
+							phoneClass : "PinControl-Phone" , 
+							urlElement : 'div',
+							urlClass : "PinControl-Url" , 
+							urlLength : 50 ,
+							distanceElement : 'div' ,
+							distanceClass : "PinControl-Distance",
+							nextDistanceElement : 'div',
+							nextDistanceClass : 'Pin-Print-NextDistance'
+						}
+					);
+					NewPinsElement.id = 'PinControl-Pins';
+					var OldStyle = OldPinsElement.style;
+					var OldComputedStyle = window.getComputedStyle ( OldPinsElement, null );
+					var OldMaxHeight;
+					try
+					{
+						OldMaxHeight = OldComputedStyle.maxHeight;
+					}
+					catch ( e )
+					{
+						OldMaxHeight = '400px';
+					}
+
+					NewPinsElement.dataset.minimized = OldPinsElement.dataset.minimized;
+					if ( 'yes' === NewPinsElement.dataset.minimized  ) {
+						NewPinsElement.setAttribute ( "style", "visibility : hidden; width: 0; min-width: 0; height: 0; margin: 0.5em;" );
+					}
+					else {
+						NewPinsElement.setAttribute ( "style", "visibility : visible; width: auto; min-width: 20em; height: auto; margin: 0.5em; max-height: "+ OldMaxHeight );
+					}
+
+					var ScrollTop = OldPinsElement.scrollTop;
+					MaindivElement.replaceChild ( NewPinsElement, OldPinsElement );
+					document.getElementById ( 'PinControl-Pins' ).scrollTop = ScrollTop;
+				}
+			}
+		};
+		
+		return {
+				
+			/* --- public methods --- */
+			
+			/* 
+			--- CallbackFunction ( ) method --- 
+			
+			This method do nothing but can be overriden in other code.
+			The CallbackFunction is called each time a pin is added, deleted, edited or dragged
+			*/
+
+			CallbackFunction : function ( ) { _CallbackFunction ( ); },
+			
+
+			/* 
+			--- setCallbackFunction ( ) method --- 
+			
+			This method is used to change the Callback function
+			*/
+
+			setCallbackFunction : function ( CallbackFunction ) { 
+				_CallbackFunction = CallbackFunction;
+			},
+
+			/* 
+			--- push ( Pin ) method --- 
+			
+			this method add a pin to the collection
+			
+			Parameters : 
+			- Pin : the L.Marker.Pin object to add to the collection
+			
+			Return :
+			- the position of the new pin in the pins collection (first position = 0)
+			
+			*/
+
+			push : function ( Pin, pinPosition ) {
+
+				Pin.options.pinId = _NextPinId++;
+				
+				if ( undefined === pinPosition ) {
+					pinPosition = -1;
+				}
+				if ( Pin.options.distance && 0 < Pin.options.distance ) {
+					pinPosition = -1;
+				}
+				if ( -1 !== pinPosition )
+				{
+					_Pins.splice ( pinPosition  , 0, Pin );
+				}
+				else {
+					var isStartPin = '28' === Pin.options.pinCategory.CategoryId;
+					var newPinDistance =  isStartPin ? 0 : ( Pin.options.distance ? Pin.options.distance : 0 );
+					if ( 0 < newPinDistance || isStartPin ) {
+						for ( var pinCounter = 0; pinCounter < _Pins.length; pinCounter ++ ) {
+							var currentPinDistance = '28' === _Pins [ pinCounter ].options.pinCategory.CategoryId ? 0 : ( _Pins [ pinCounter ].options.distance ? _Pins [ pinCounter ].options.distance : 0 );
+							if ( currentPinDistance >  newPinDistance )
+							{
+								_Pins.splice ( pinCounter  , 0, Pin );
+								pinPosition = pinCounter;
+								break;
+							}
+						}
+						if ( -1 === pinPosition ) {
+							_Pins.push ( Pin );
+							pinPosition = _Pins.length - 1;
+						}
+					}
+					else {
+						_Pins.push ( Pin );
+						pinPosition = _Pins.length - 1;
+					}
+				}
+				this.CallbackFunction ( );
+				_updateControl ( );
+				
+				return pinPosition;
+			},
+
+			/* 
+			--- remove ( Pin ) method --- 
+			
+			this method remove a pin from the collection
+			
+			Parameters : 
+			- Pin : the L.Marker.Pin object to remove from the collection
+			
+			Return :
+			- the position of the removed pin in the pins collection (first position = 0)
+
+			*/
+
+			remove : function ( Pin ) {
+				for ( var Counter = 0; Counter < _Pins.length ; Counter++ )
+				{
+					if ( _Pins [ Counter ].options.pinId === Pin.options.pinId ) {
+						_Pins.splice ( Counter, 1 );
+						this.CallbackFunction ( );
+						_updateControl ( );
+						
+						return Counter;
+					}
+				}
+				
+				return -1;
+			},
+			
+
+			/* 
+			--- pointToLayer ( feature, latlng ) method --- 
+			
+			this method add a pin to the collection from GeoJSON feature
+			
+			Parameters : 
+			- feature : the GeoJSON object with pin's data 
+			- latlng : the position of the pin
+			
+			Return :
+			- a new pin to add to the map
+
+			*/
+
+			pointToLayer: function ( feature, latlng ) {
+				var Pin = L.marker.pin ( 
+					latlng,
+					{
+						"text" : feature.properties.text,
+						"phone" : feature.properties.phone,
+						"url" : feature.properties.url,
+						"distance" : feature.properties.distance,
+						"address" : feature.properties.address,
+						"pinCategory" : _Categories.getCategory ( feature.properties.categoryId ),
+						"icon" : _Categories.getCategory ( feature.properties.categoryId ).CategoryIcon,
+						"draggable" : true,
+						"className" : 'Pin',
+						"title" : _Categories.getCategory ( feature.properties.categoryId ).CategoryName,
+					}
+				);
+
+				Pin.bindPopup ( Pin.getHtml ( ) );
+				
+				var ContextMenu;
+				if ( typeof module !== 'undefined' && module.exports ) {
+					ContextMenu = require ('./L.Marker.Pin.ContextMenu' );
+				}
+				else {
+					ContextMenu = L.marker.pin.contextmenu;
+				}
+				
+				Pin.on ( 'add', function ( event ) {this.options.map = event.target._map;} );
+				Pin.on ( 'contextmenu', ContextMenu ); 
+				Pin.on ( 'dblclick', ContextMenu);
+				Pin.on ( 'dragend', this.CallbackFunction ); 
+				
+				this.push ( Pin );
+				
+				return Pin;
+			},
+			
+			/* 
+			--- order ( OldPos, NewPos, AfterNewPos ) method --- 
+
+			This method changes the position of a pin in the pins collection
+
+			Parameters :
+			- OldPos : the old position of the pin in the collection
+			- NewPos : the new position of the pin in the collection
+			- AfterNewPos : a boolean indicates if the pin position must be
+			after the pin at the new position ( true ) or before ( false )
+			
+			*/
+
+			order : function ( OldPos, NewPos, AfterNewPos ) {
+				OldPos = parseInt ( OldPos );
+				NewPos = parseInt ( NewPos );
+				if ( AfterNewPos ) {
+					NewPos = NewPos + 1;
+				}
+				if ( OldPos > _Pins.length - 1 ) {
+					return;
+				}
+				if ( NewPos > _Pins.length ) {
+					return;
+				}
+				if ( OldPos === NewPos ) {
+					return;
+				}
+				var CurrentPos = 0;
+				var NewPins = [];
+				for ( var Counter = 0; Counter < _Pins.length; Counter++ ) {
+					if ( Counter === OldPos ) {
+					}
+					else if ( Counter === NewPos ) {
+						NewPins [ CurrentPos ] = _Pins [ OldPos ];
+						CurrentPos++;
+						NewPins [ CurrentPos ] = _Pins [ Counter ];
+						CurrentPos++;
+					}
+					else {
+						NewPins [ CurrentPos ] = _Pins [ Counter ];
+						CurrentPos++;
+					}
+				}
+				if ( NewPos === _Pins.length ) {
+					NewPins [ _Pins.length - 1 ] = _Pins [ OldPos ];
+				}
+				_Pins = NewPins;
+				this.CallbackFunction ( );
+				_updateControl ( );
+			},
+			
+			/* 
+			--- zoomTo ( PinRange ) method --- 
+			
+			This method zoom to a pin 
+			
+			Parameter :
+			PinRange : the position in the pins collection
+			
+			return: a reference to the pin
+			
+			*/
+			
+			zoomTo : function ( PinRange ) {
+				var Pin = _Pins [ PinRange ];
+				Pin.options.map.setView ( Pin.getLatLng ( ), 17);
+				
+				return Pin;
+			},
+			
+			/* 
+			--- stringify ( ) method --- 
+			
+			This method transforms the pin's collection into a JSON chain.
+			Because this chain can be used in the URL, we try to have a short chain...
+			
+			Return :
+			- A JSON string with all the pins present on the map
+			
+			*/
+
+			stringify : function ( ) {
+				var PinsData = [];
+				for ( var Counter = 0; Counter < _Pins.length; Counter++ ) {
+					var LatLng =
+						_Pins [ Counter ].getLatLng ( ).lat.toLocaleString ( 'en', { minimumFractionDigits : 5, maximumFractionDigits : 5}) +
+						',' +
+						_Pins [ Counter ].getLatLng ( ).lng.toLocaleString ( 'en', { minimumFractionDigits : 5, maximumFractionDigits : 5});
+					var PinData = {
+						l : LatLng,
+						/*pin*/c/*ategoryId*/ : _Pins [ Counter ].options.pinCategory.CategoryId,
+					};
+					if ( _Pins [ Counter ].options.text && 0 < _Pins [ Counter ].options.text.length  ) {
+						PinData.t/*ext*/ = _Pins [ Counter ].options.text;
+					}
+					if ( _Pins [ Counter ].options.phone && 0 < _Pins [ Counter ].options.phone.length  ) {
+						PinData.p/*hone*/ = _Pins [ Counter ].options.phone;
+					}
+					if ( _Pins [ Counter ].options.url && 0 < _Pins [ Counter ].options.url.length  ) {
+						PinData.u/*rl*/ = _Pins [ Counter ].options.url;
+					}
+					if ( _Pins [ Counter ].options.address && 0 < _Pins [ Counter ].options.address.length  ) {
+						PinData.a/*ddress*/ = _Pins [ Counter ].options.address;
+					}
+					if ( _Pins [ Counter ].options.distance && 0 < _Pins [ Counter ].options.distance  ) {
+						PinData.d/*istance*/ = _Pins [ Counter ].options.distance;
+					}
+					
+					PinsData.push ( PinData );
+				}
+				return JSON.stringify ( PinsData );
+			},
+			
+			/* 
+			--- parse ( JsonString, Map ) method --- 
+			
+			This method parse a JSON chain created by the stringify ( ) method,
+			creates the corresponding pins and add it to the map.
+			
+			Parameters :
+			- JsonString : the JSON string
+			- Map : the L.Map object to witch the pins are added
+			*/
+			parse : function ( JsonString, Map ) {
+				// the collection is emptied...
+				_Pins = [];
+				// The JSON string is parsed
+				var PinsData;
+				if ( 'string' === typeof ( JsonString ) ) {
+					PinsData = JSON.parse( JsonString );
+				}
+				else {
+					PinsData = JsonString;
+				}
+				for ( var Counter = 0; Counter < PinsData.length ; Counter++) {
+					// loop on the results
+					var PinData = PinsData [ Counter ];
+					
+					// a L.LatLng object is created
+					
+					// the category is searched in the categories collection
+					var Category;
+					if ( PinData.c ) {
+						Category = L.marker.pin.categories ( ).getCategory ( PinData.c );
+					}
+					else {
+						Category = L.marker.pin.categories ( ).getCategory ( PinData.options.pinCategoryId );
+					}
+					if ( ! Category ) {
+						continue;
+					}
+					var latLng;
+					if ( PinData.l ) {
+						var StringLatLng = PinData.l.split ( ','); 
+						latLng = L.latLng ( parseFloat (StringLatLng [ 0 ]), parseFloat (StringLatLng [ 1 ] ) );
+					}
+					else {
+						latLng = PinData.latLng;
+					}
+					// and the pin created
+					var draggableIcon = ! this.readOnly;
+					var Pin = new L.Marker.Pin (
+						latLng,
+						{
+							icon : Category.CategoryIcon,
+							draggable : draggableIcon,
+							className : 'Pin',
+							title : Category.CategoryName,
+							phone : ( PinData.p ? PinData.p : ( PinData.options && PinData.options.phone ? PinData.options.phone : '' ) ),
+							url : ( PinData.u ? PinData.u : ( PinData.options && PinData.options.url ? PinData.options.url : '' ) ),
+							text : ( PinData.t ? PinData.t : ( PinData.options && PinData.options.text ? PinData.options.text : '' ) ),
+							address : ( PinData.a ? PinData.a : ( PinData.options && PinData.options.address ? PinData.options.address : '' ) ),
+							distance : ( PinData.d ? parseFloat ( PinData.d ) : ( PinData.options && PinData.options.distance ? parseFloat ( PinData.options.distance ) : 0 ) ),
+							pinCategory : Category,
+							map : Map,
+							pinId : _NextPinId++
+						}
+					);
+					_Pins.push ( Pin );
+					Pin.bindPopup ( Pin.getHtml ( ) ).addTo ( Map );
+					var ContextMenu;
+					if ( typeof module !== 'undefined' && module.exports ) {
+						ContextMenu = require ('./L.Marker.Pin.ContextMenu' );
+					}
+					else {
+						ContextMenu = L.marker.pin.contextmenu;
+					}
+					Pin.on ( 'contextmenu', ContextMenu ); 
+					Pin.on ( 'dragend', this.CallbackFunction ); 
+				}
+				_updateControl ( );
+			},
+			
+			/*
+			
+			--- asHtmlElement( options ) method ---
+			
+			See the _asHtmlElement method and the 
+			L.Marker.Pin.Interface.PinsHtlmlOptions property
+			
+			*/
+			
+			asHtmlElement : function ( options ) {
+				return _asHtmlElement ( options );
+			},
+			
+			/* 
+			--- toGeoJSON ( ) method --- 
+			
+			This method returns the pins as a GeoJSON object
+
+			*/
+
+			toGeoJSON : function ( ) {
+				var Features = [];
+				for ( var Counter = 0; Counter < _Pins.length; Counter++) {
+					Features.push ( _Pins [ Counter ].toGeoJSON ( ) );
+				}
+				
+				return {
+					"type": "FeatureCollection",
+					"features" : Features
+				};
+				
+			},
+		
+			/* 
+			--- show ( ) method --- 
+			
+			This method show the pins
+
+			*/
+
+			show : function ( )
+			{
+				for ( var Counter = 0; Counter < _Pins.length; Counter++) {
+					_Pins [ Counter ].getElement ( ).style.visibility = 'visible';
+				}
+			},
+
+			/* 
+			--- hide ( ) method --- 
+			
+			This method hide the pins
+
+			*/
+
+			hide : function ( )
+			{
+				for ( var Counter = 0; Counter < _Pins.length; Counter++) {
+					_Pins [ Counter ].getElement ( ).style.visibility = 'hidden';
+				}
+			},
+			
+			/* --- public properties --- */
+
+			/* 
+			
+			--- LatLngBounds ---
+			
+			The pins LatLngBounds object ( see leaflet documentation )
+			
+			*/
+			
+			get LatLngBounds ( ) {
+				var PinsLatLng = [];
+				for ( var Counter = 0; Counter < _Pins.length; Counter++) {
+					PinsLatLng.push ( _Pins [ Counter ].getLatLng ( ) );
+				}
+				
+				return L.latLngBounds ( PinsLatLng ); 
+			},
+
+			/* 
+			
+			--- length ---
+			
+			The size of the pins collection
+			
+			*/
+			
+			get length ( ) {return _Pins.length; },
+			
+			/* 
+			
+			--- readOnly ---
+			
+			Pins are read only when true. In this case pins cannot be edited, removed or dragged.
+			
+			*/
+
+			set readOnly ( readOnly ) { 
+				_ReadOnly = readOnly; 
+				for ( var Counter = 0; Counter < _Pins.length; Counter ++) {
+					_Pins [ Counter ].options.draggable = ! _ReadOnly;
+				}
+			},
+			get readOnly ( ) { return _ReadOnly; },
+
+			get pins ( ) { 
+				var pins = [];
+				for ( var pinCounter = 0; pinCounter < _Pins.length; pinCounter ++ ) {
+					var pin = _Pins [ pinCounter ];
+					pins.push (
+						{
+							options : {
+								text : pin.options.text,
+								address : pin.options.address,
+								url: pin.options.url,
+								pinCategoryId : pin.options.pinCategory.CategoryId,
+								phone: pin.options.phone,
+								distance: pin.options.distance
+							},
+							latLng : pin._latlng
+						}
+					);
+				}
+				return pins; 
+			}			
+		};
+	};
+	
+	L.marker.pin.pins = function ( ) {
+		return L.Marker.Pin.getPins ( );
+	};
+		
+	if ( typeof module !== 'undefined' && module.exports ) {
+		module.exports = L.marker.pin.pins ( );
+	}
+
+	/* --- End of L.Marker.Pin.Pins object --- */
+
+}) ( );	

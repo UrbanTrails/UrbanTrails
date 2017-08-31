@@ -8,6 +8,7 @@ import App from './App.vue'
 // other components
 import Map from './Map.vue'
 import leafletMap from './leafletMap.vue'
+import areaReporting from './areaReporting.vue'
 
 Vue.use(VueAsyncData)
 
@@ -17,6 +18,7 @@ Vue.component('leafletMap', leafletMap)
 Vue.component('v-map', Vue2Leaflet.Map)
 Vue.component('v-tilelayer', Vue2Leaflet.TileLayer)
 Vue.component('v-marker', Vue2Leaflet.Marker)
+Vue.component('areaReporting', areaReporting)
 
 new Vue({
   // inject store into all components

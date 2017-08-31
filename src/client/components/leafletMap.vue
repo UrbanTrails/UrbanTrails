@@ -4,6 +4,7 @@
 
 <script>
 import * as L from 'leaflet';
+import * as Pin from 'leaflet.marker.pin'
 export default {
   data() {
     return {
@@ -32,6 +33,16 @@ export default {
   },
   methods: {
     makeMap() {
+        'use strict';
+
+        var myInterface = L.marker.pin.interface ( );
+        
+        myInterface.UserLanguage = 'en';
+        
+        myInterface.addDefaultCategories ( );
+        
+        myInterface.setCallbackFunction ( function ( ) { history.pushState ( { index : "bar" } , "page", '?pin=' + myInterface.stringifyPins ( ) ); });
+
        var mymap = L.map('mapid').setView([51.505, -0.09], 13);
        mymap.locate({setView: true, zoom: 10});
 
@@ -41,6 +52,12 @@ export default {
        }).addTo(mymap);
        let marker = L.marker([51.505, -0.09]).addTo(mymap);
        marker.bindPopup('Configuring your location...').openPopup();
+
+       mymap.on ( 'click', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} );
+       mymap.on ( 'contextmenu', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} ); 
+
+       var Search = decodeURI ( window.location.search );
+       if ( 0 <= Search.indexOf ( 'pin=' ) ) { myInterface.parsePins ( Search.substr ( Search.indexOf ( 'pin=' ) + 4 ), mymap );}
 
        setTimeout(() => {
          this.fixits.forEach((chunk) => {
