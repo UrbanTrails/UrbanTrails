@@ -1,6 +1,4 @@
-
 export default {
-  L: null,
   addControl: (context, mymap) => {
     const baseMaps = {
       Main: context.$data.mainLayer,

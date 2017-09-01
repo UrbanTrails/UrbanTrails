@@ -6,12 +6,12 @@ export default {
     mymap.locate({ setView: true, zoom: 10 })
 
     function onLocationFound(e) {
-      var radius = e.accuracy / 2;
+      const radius = e.accuracy / 2
       L.marker(e.latlng)
         .addTo(mymap)
-        .bindPopup("You are within " + radius + " meters from this point").openPopup();
-      L.circle(e.latlng, radius).addTo(mymap);
+        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
+      L.circle(e.latlng, radius).addTo(mymap)
     }
-    mymap.on('locationfound', onLocationFound);
+    mymap.on('locationfound', onLocationFound)
   }
 }
