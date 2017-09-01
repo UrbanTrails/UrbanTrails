@@ -23,6 +23,6 @@ export default {
     })
   },
   addTrails(context) {
-    context.$data.trailsLayer.addData(map.trails)
+    context.$data.trailsLayer.addData(context.trails)
   },
 }
