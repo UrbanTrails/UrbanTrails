@@ -9,7 +9,7 @@ export default {
       const radius = e.accuracy / 2
       L.marker(e.latlng)
         .addTo(mymap)
-        .bindPopup(`You are within ${radius} meters from this point`).openPopup();
+        .bindPopup(`You are within ${radius} meters from this point`).openPopup()
       L.circle(e.latlng, radius).addTo(mymap)
     }
     mymap.on('locationfound', onLocationFound)
