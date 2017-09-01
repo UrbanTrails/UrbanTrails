@@ -6,7 +6,12 @@
 
 <script>
   import * as L from 'leaflet';
-  import * as Pin from 'leaflet.marker.pin'
+  import * as Pin from 'leaflet.marker.pin';
+  import meth from './leafletMethods/leafletMethods.js'
+  import loadLayer from './leafletMethods/methLoadLayer.js'
+  import customPopup from './leafletMethods/methPopup.js'
+  import hamburger from './leafletMethods/methHamburger.js'
+  import mLocation from './leafletMethods/methLocation.js'
   export default {
     data() {
       return {
@@ -30,13 +35,13 @@
     },
     watch: {
       fixits: function() {
-        this.fixitMarkers()
+        loadLayer.fixitMarkers(this)
       },
       kiosks: function() {
-        this.kioskMarkers()
+        loadLayer.kioskMarkers(this)
       },
       trails: function(){
-        this.addTrails()
+        loadLayer.addTrails(this)
       },
     },
     computed: {
@@ -51,42 +56,14 @@
       }
     },
     methods: {
-      fixitMarkers() {
-        this.fixits.forEach((chunk) => {
-          let lat = chunk[11][1]
-          let lon = chunk[11][2]
-          let name = chunk[8]
-          let address = JSON.parse(chunk[11][0]).address
-          let marker = L.marker([lat, lon])
-          marker.bindPopup(`<b>${name} Fixit Station</b><br>${address}`)
-          this.$data.fixitsLayer.addLayer(marker)
-        })
-      },
-      kioskMarkers() {
-        this.kiosks.forEach((chunk) => {
-          if (chunk[10] === 'active') {
-            let address = chunk[9]
-            let lat = chunk[11]
-            let lon = chunk[12]
-            let marker = L.marker([lat, lon])
-            marker.bindPopup(`${address} Bicycle Kiosk`)
-            this.$data.kiosksLayer.addLayer(marker)
-          }
-        })
-      },
-      addTrails() {
-        this.$data.trailsLayer.addData(this.trails)
-      },
-
       makeMap() {
-
-        var myInterface = L.marker.pin.interface ( );
-
-        myInterface.UserLanguage = 'en';
-
-        myInterface.addDefaultCategories ( );
-
-        myInterface.setCallbackFunction ( function ( ) { history.pushState ( { index : "bar" } , "page", '?pin=' + myInterface.stringifyPins ( ) ); });
+        // var myInterface = L.marker.pin.interface ( );
+        //
+        // myInterface.UserLanguage = 'en';
+        //
+        // myInterface.addDefaultCategories ( );
+        //
+        // myInterface.setCallbackFunction ( function ( ) { history.pushState ( { index : "bar" } , "page", '?pin=' + myInterface.stringifyPins ( ) ); });
 
         //layers including empty
         this.$data.mainLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.dark/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoidGlyb3kiLCJhIjoiY2o2d21xbHRiMXhqOTJ3bGFxZ3l2bm1sMSJ9.rIS4v4TvYEdQctZulEKzCg', {
@@ -111,73 +88,48 @@
             this.$data.fixitsLayer,
             this.$data.kiosksLayer]
         });
+        this.$data.map = mymap
         //end map creation
 
         //map location
-        let marker = L.marker([51.505, -0.09]).addTo(mymap);
-        marker.bindPopup('Configuring your location...').openPopup()
-
-        mymap.locate({setView: true, zoom: 10})
-
-        function onLocationFound(e) {
-            var radius = e.accuracy / 2;
-          L.marker(e.latlng)
-          .addTo(mymap)
-          .bindPopup("You are within " + radius + " meters from this point").openPopup();
-          L.circle(e.latlng, radius).addTo(mymap);
-        }
-        mymap.on('locationfound', onLocationFound);
+        mLocation.locate(this, mymap)
         //end map location
 
         // layer control
-        var baseMaps = {
-            "Main": this.$data.mainLayer,
-        };
-
-        var overlayMaps = {
-            "Trails": this.$data.trailsLayer,
-            "Fixits": this.$data.fixitsLayer,
-            "Kiosks": this.$data.kiosksLayer,
-        };
-
-        L.control.layers(baseMaps, overlayMaps).addTo(mymap);
+        hamburger.addControl(this, mymap)
         //end layer control
 
 
 
-        mymap.on ( 'click', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} );
-        mymap.on ( 'contextmenu', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} );
-
-        var Search = decodeURI ( window.location.search );
-        if ( 0 <= Search.indexOf ( 'pin=' ) ) { myInterface.parsePins ( Search.substr ( Search.indexOf ( 'pin=' ) + 4 ), mymap );}
-
-      function getHandlerForFeature(feat) {  // A function...
-        return function(ev) {   // ...that returns a function...
-          console.log(feat);  // ...that has a closure over the value.
+        // mymap.on ( 'click', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} );
+        // mymap.on ( 'contextmenu', function ( Event ) { myInterface.newPin ( mymap, Event.latlng )} );
+        //
+        // var Search = decodeURI ( window.location.search );
+        // if ( 0 <= Search.indexOf ( 'pin=' ) ) { myInterface.parsePins ( Search.substr ( Search.indexOf ( 'pin=' ) + 4 ), mymap );}
+        //
+        function getHandlerForFeature(feat) {  // A function...
+          return function(ev) {   // ...that returns a function...
+            console.log(feat);  // ...that has a closure over the value.
+          }
         }
-      } 
 
         // The button doesn't exist in the DOM until the popup has been opened, so
-        this.map.on('popupopen', function(){
-          L.DomEvent.on( 
-            document.getElementById('mybutton'), 
+        mymap.on('popupopen', function(){
+          L.DomEvent.on(
+            document.getElementById('mybutton'),
             'click',
             getHandlerForFeature("hi guys!!") // The result of this call is the event handler func.
           );
         });
-        
-        function doubleClick (e) {
-          let myFunc = function myFunc() {
-            console.log('hello everyone')
-          }
 
+        function doubleClick (e) {
           var popup = L.popup.call(this)
-              .setLatLng([e.latlng.lat, e.latlng.lng])
-              .setContent("<button id='mybutton'>Foo!</button>")
-              .openOn(mymap);
+          .setLatLng([e.latlng.lat, e.latlng.lng])
+          .setContent("<button id='mybutton'>Foo!</button>")
+          .openOn(mymap);
         }
-        
-        this.map.on('dblclick', doubleClick.bind(this))     
+
+        mymap.on('dblclick', doubleClick.bind(this))
 
       },
     },
