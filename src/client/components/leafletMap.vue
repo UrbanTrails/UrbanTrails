@@ -1,6 +1,6 @@
 <template>
   <div id="mapid">
-    <Dropdown></Dropdown>
+    <Dropdown :toggleLayer="toggleLayer"></Dropdown>
   </div>
 </template>
 
@@ -53,9 +53,18 @@
       },
       fixits: function() {
           return this.$store.getters.fixits
+      },
+      allLayers: function() {
+        let layers = [ this.$data.mainLayer, this.$data.trailsLayer, this.$data.fixitsLayer, this.$data.kiosksLayer ]
+        return layers
       }
+
     },
     methods: {
+      toggleLayer(layer) {
+        hamburger.toggleLayer(layer, this, this.$data.map)
+      },
+
       makeMap() {
 
         //layers including empty
@@ -69,6 +78,9 @@
         this.$data.fixitsLayer = L.layerGroup('')
 
         this.$data.kiosksLayer = L.layerGroup('')
+
+        // let kiosksLayer = L.layerGroup('')
+
         //end layers
 
         //map creation
@@ -120,7 +132,7 @@
         //end map location
 
         // layer control
-        hamburger.addControl(this, mymap)
+        // hamburger.addControl(this, mymap)
         //end layer control
 
         function getHandlerForFeature(feat) {  // A function...
@@ -128,7 +140,7 @@
             console.log(feat);  // ...that has a closure over the value.
           }
         }
-
+        
         function doubleClick (e) {
           console.log('hello');
           let pos = [e.latlng.lat, e.latlng.lng]
@@ -136,6 +148,9 @@
           reports[0].setAttribute('id', 'selected');
         }
         mymap.on('dblclick', doubleClick.bind(this))
+
+        // mymap.on('dblclick', () => {hamburger.toggleLayer(this, mymap, 'kiosksLayer')})
+
       },
     }
   }
