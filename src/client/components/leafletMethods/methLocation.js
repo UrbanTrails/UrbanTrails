@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 export default {
   locate: (context, mymap) => {
     const marker = L.marker([51.505, -0.09]).addTo(mymap)

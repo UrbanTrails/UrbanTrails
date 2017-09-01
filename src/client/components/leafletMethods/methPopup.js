@@ -1,4 +1,4 @@
-/*eslint-disable no-undef*/
+/* eslint-disable no-undef */
 export default {
   drug: () => console.log('dosed'),
   fixitMarkers: (map) => {

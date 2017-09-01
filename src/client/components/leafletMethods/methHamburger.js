@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 export default {
   addControl: (context, mymap) => {
     const baseMaps = {

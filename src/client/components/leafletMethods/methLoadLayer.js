@@ -1,4 +1,4 @@
-/*eslint no-undef-init: "error"*/
+/* eslint-disable no-undef */
 export default {
   fixitMarkers: (context) => {
     context.fixits.forEach((chunk) => {
