@@ -12,7 +12,7 @@ export default {
   //   L.control.layers(baseMaps, overlayMaps).addTo(mymap)
   // }
   toggleLayer: (layer, context, mymap) => {
-    if(mymap.hasLayer(context.$data[layer])){
+    if (mymap.hasLayer(context.$data[layer])) {
       mymap.removeLayer(context.$data[layer])
     } else {
       mymap.addLayer(context.$data[layer])
