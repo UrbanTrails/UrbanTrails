@@ -12,10 +12,10 @@ export default {
         mymap.removeLayer(circle)
       }
       const radius = e.accuracy / 2
-      const latln = {lat: e.latitude, lng: e.longitude}
+      const latln = { lat: e.latitude, lng: e.longitude }
       mymap.setView(latln, 18)
       marker.setLatLng(latln).closePopup()
-      .bindPopup("You are within " + radius + " meters from this point").openPopup()
+        .bindPopup(`You are within ${radius} meters from this point`).openPopup()
       circle = L.circle(latln, radius).addTo(mymap)
     }
     mymap.on('locationfound', onLocationFound)
