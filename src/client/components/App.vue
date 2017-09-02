@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h1>Welcome</h1>
     <leafletMap></leafletMap>
-    <areaReporting></areaReporting>
     <!-- <button @click="changeStatus">Change Status</button> -->
   </div>
 </template>

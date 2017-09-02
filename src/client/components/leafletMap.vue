@@ -1,6 +1,8 @@
 <template>
   <div id="mapid">
-    <Dropdown></Dropdown>
+    <Dropdown :toggleLayer="toggleLayer"></Dropdown>
+    <areaReporting></areaReporting>
+
   </div>
 </template>
 
@@ -53,9 +55,18 @@
       },
       fixits: function() {
           return this.$store.getters.fixits
+      },
+      allLayers: function() {
+        let layers = [ this.$data.mainLayer, this.$data.trailsLayer, this.$data.fixitsLayer, this.$data.kiosksLayer ]
+        return layers
       }
+
     },
     methods: {
+      toggleLayer(layer) {
+        hamburger.toggleLayer(layer, this, this.$data.map)
+      },
+
       makeMap() {
 
         //layers including empty
@@ -69,6 +80,9 @@
         this.$data.fixitsLayer = L.layerGroup('')
 
         this.$data.kiosksLayer = L.layerGroup('')
+
+        // let kiosksLayer = L.layerGroup('')
+
         //end layers
 
         //map creation
@@ -85,42 +99,11 @@
         //end map creation
 
         //map location
-
-        let clientlng = navigator.geolocation.watchPosition((position) => position.coords.longitude )
-        let clientlat = navigator.geolocation.watchPosition((position) => position.coords.latitude )
-        let marker = L.marker([51.505, -0.09]).addTo(mymap);
-        marker.bindPopup('Configuring your location...').openPopup()
-        var circle = L.circle([51.505, -0.09], 0).addTo(mymap)
-
-
-        function onLocationFound(e) {
-          if (circle) {
-            mymap.removeLayer(circle)
-          }
-          var radius = e.accuracy / 2
-          var latln = {lat: e.latitude, lng: e.longitude}
-          mymap.setView(latln, 18)
-          marker.setLatLng(latln).closePopup()
-          .bindPopup("You are within " + radius + " meters from this point").openPopup()
-          circle = L.circle(latln, radius).addTo(mymap)
-        }
-        mymap.on('locationfound', onLocationFound)
-
-        if (navigator.geolocation) {
-          navigator.geolocation.watchPosition((position) => {
-            onLocationFound(position.coords)
-          })
-        }
-        mymap.locate()
-
-
-        //add to here later
-        //mLocation.locate(this, mymap)
-
+        mLocation.locate(this, mymap)
         //end map location
 
         // layer control
-        hamburger.addControl(this, mymap)
+        // hamburger.addControl(this, mymap)
         //end layer control
 
         function getHandlerForFeature(feat) {  // A function...
@@ -136,11 +119,14 @@
           reports[0].setAttribute('id', 'selected');
         }
         mymap.on('dblclick', doubleClick.bind(this))
+
+        // mymap.on('dblclick', () => {hamburger.toggleLayer(this, mymap, 'kiosksLayer')})
+
       },
     }
   }
 </script>
 
 <style>
-  #mapid {height: 500px;}
+  #mapid {height: 100%;}
 </style>
