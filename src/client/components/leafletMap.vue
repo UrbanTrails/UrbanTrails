@@ -1,6 +1,8 @@
 <template>
   <div id="mapid">
     <Dropdown :toggleLayer="toggleLayer"></Dropdown>
+    <areaReporting></areaReporting>
+
   </div>
 </template>
 
@@ -97,38 +99,7 @@
         //end map creation
 
         //map location
-
-        let clientlng = navigator.geolocation.watchPosition((position) => position.coords.longitude )
-        let clientlat = navigator.geolocation.watchPosition((position) => position.coords.latitude )
-        let marker = L.marker([51.505, -0.09]).addTo(mymap);
-        marker.bindPopup('Configuring your location...').openPopup()
-        var circle = L.circle([51.505, -0.09], 0).addTo(mymap)
-
-
-        function onLocationFound(e) {
-          if (circle) {
-            mymap.removeLayer(circle)
-          }
-          var radius = e.accuracy / 2
-          var latln = {lat: e.latitude, lng: e.longitude}
-          mymap.setView(latln, 18)
-          marker.setLatLng(latln).closePopup()
-          .bindPopup("You are within " + radius + " meters from this point").openPopup()
-          circle = L.circle(latln, radius).addTo(mymap)
-        }
-        mymap.on('locationfound', onLocationFound)
-
-        if (navigator.geolocation) {
-          navigator.geolocation.watchPosition((position) => {
-            onLocationFound(position.coords)
-          })
-        }
-        mymap.locate()
-
-
-        //add to here later
-        //mLocation.locate(this, mymap)
-
+        mLocation.locate(this, mymap)
         //end map location
 
         // layer control
@@ -140,7 +111,7 @@
             console.log(feat);  // ...that has a closure over the value.
           }
         }
-        
+
         function doubleClick (e) {
           console.log('hello');
           let pos = [e.latlng.lat, e.latlng.lng]
@@ -157,5 +128,5 @@
 </script>
 
 <style>
-  #mapid {height: 500px;}
+  #mapid {height: 100%;}
 </style>
