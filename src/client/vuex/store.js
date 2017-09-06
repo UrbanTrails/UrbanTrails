@@ -36,7 +36,7 @@ const actions = {
       userid: reportInfo.userid
     })
       .then((response) => {
-        console.log(response.status + ' ' + response.statusText)
+        console.log(`${response.status} ${response.statusText}`)
       }, (err) => {
         console.log('ERROR', err)
       })
