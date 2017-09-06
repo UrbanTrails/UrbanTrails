@@ -139,13 +139,7 @@
           }
         }
 
-        function click (e) {
-          this.closePanels()
-          console.log('One, ah ah ah');
-        }
-
         function doubleClick (e) {
-          console.log('TWO, AH AH AH');
           let position = [e.latlng.lat, e.latlng.lng];
           var reports = document.getElementsByClassName('reporting');
           reports[0].setAttribute('id', 'selected');
@@ -154,8 +148,6 @@
 
         //capture clicks on the map
         mymap.on('dblclick', doubleClick.bind(this));
-        mymap.on('click', click.bind(this));
-        mymap.on('movestart', click.bind(this))
       },
     }
   }
