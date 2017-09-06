@@ -61,8 +61,8 @@
         this.$store.dispatch('POST_REPORT', reportInfo)
         document.getElementById('selected').removeAttribute('id')
       },
-      otherReport: () => {
-        methods.postReport(document.getElementsByClass('other')[0].getAttribute('data'), document.getElementById('inputBox').text())
+      otherReport() {
+        this.postReport(document.getElementsByClassName('other')[0].getAttribute('data'), document.getElementById('inputBox').value)
         document.getElementsByClass('other')[0].removeAttribute('data')
       }
     }
