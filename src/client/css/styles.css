@@ -1,5 +1,18 @@
-html, body{
-  height: 100%
+html, body, body > div, body > div > div{
+  height: 100%;
+  width: 100%;
+}
+
+.overLeaflet /*, .application, .application:not(#mapid) */{
+  z-index: 1010 !important
+}
+
+.overEverything {
+  z-index: 1050 !important
+}
+
+.base { /*temporary until styles is set */
+  background-color: white;
 }
 
 #selected {
@@ -9,7 +22,7 @@ html, body{
   width: 100%;
   top: 70%;
   display: block;
-  z-index: 401;
+  z-index: 2000;
 }
 
 .reporting, .issues, .recommendations {display: none}
@@ -40,7 +53,7 @@ html, body{
   height: 90%;
 }
 
-.issues .button {
+.issues .button, .recommendations .button {
   width: 22.5%;
   height: 90%;
   display: inline-block;

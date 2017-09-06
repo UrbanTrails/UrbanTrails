@@ -4,7 +4,8 @@ module.exports = {
     client: 'sqlite3',
     connection: {
       filename: './urban-trails-info.sqlite3'
-    }
+    },
+    useNullAsDefault: true
   }
 
 }

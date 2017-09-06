@@ -26,4 +26,14 @@ export default {
   addTrails(context) {
     context.$data.trailsLayer.addData(context.trails)
   },
+  toggleLayer: (layer, context, mymap) => {
+    let bool = true
+    if (mymap.hasLayer(context.$data[layer])) {
+      mymap.removeLayer(context.$data[layer])
+      bool = false
+    } else {
+      mymap.addLayer(context.$data[layer])
+    }
+    return bool
+  }
 }

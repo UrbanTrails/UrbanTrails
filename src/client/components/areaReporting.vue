@@ -6,22 +6,28 @@
     </div>
 
     <div class="issues">
-      <button class="button" id="pothole">Pothole</button>
-      <button class="button" id="sidewalks">Sidewalks</button>
-      <button class="button" id="vagrants">Vagrants</button>
-      <button class="button" id="other">Other</button>
-      <!--Set of options based on report type-->
-      <!--on click send data to server, mark as icon on map for temporary time (2 weeks?)-->
+      <button v-on:click="postReport('pothole')" class="button" id="pothole">Pothole</button>
+      <button v-on:click="postReport('sidewalks')" class="button" id="sidewalks">Sidewalks</button>
+      <button v-on:click="postReport('traffic')" class="button" id="traffic">Traffic</button>
+      <button v-on:click="postReport('other')" class="button" id="other">Other</button>
     </div>
     <div class="recommendations">
-      Duty
-      <!--Set of options based on report type-->
-      <!--on click send data to server, mark as icon on map for temporary time (2 weeks?)-->
+      <button v-on:click="postReport('goodarea')" class="button" id="goodarea">Good Area</button>
+      <button v-on:click="postReport('clean')" class="button" id="clean">Clean</button>
+      <button v-on:click="postReport('anotherop')" class="button" id="anotherOp">Another Op</button>
+      <button v-on:click="postReport('other')" class="button" id="other">Other</button>
     </div>
   </div>
 </template>
+
 <script type="text/javascript">
   export default {
+    data() {
+      return {};
+    },
+    mounted() {
+      console.log(this)
+    },
     methods: {
       toReportType: (reportType) => {
         document.getElementsByClassName('reporting')[0].removeAttribute('id')
@@ -30,6 +36,12 @@
         } else {
           document.getElementsByClassName('recommendations')[0].setAttribute('id', 'selected')
         }
+      },
+
+      postReport(reportName) {
+        console.log(reportName);
+        let reportInfo = {reportType: reportName, userid: 1, position: document.getElementsByClassName('reporting')[0].getAttribute('data')};
+        this.$store.dispatch('POST_REPORT', reportInfo);
       }
     }
   }

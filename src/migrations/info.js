@@ -4,12 +4,14 @@ exports.up = function up(knex, Promise) {
       table.increments('id')
       table.text('username')
       table.text('password')
+      table.text('affirmations')
     }),
-    knex.schema.createTableIfNotExists('mentions', (table) => {
+    knex.schema.createTableIfNotExists('reports', (table) => {
       table.increments('id')
-      table.text('mention_type')
+      table.text('report_type')
+      table.text('report_data')
       table.text('coordinates')
-      table.timestamp('created_at').defaultTo(knex.fn.now())
+      table.timestamp('created_at')
       table.text('userid').references('id').inTable('users')
     })
   ])
@@ -18,6 +20,7 @@ exports.up = function up(knex, Promise) {
 exports.down = function down(knex, Promise) {
   return Promise.all([
     knex.schema.dropTable('users'),
-    knex.schema.dropTable('mentions')
+    knex.schema.dropTable('reports'),
+    knex.schema.dropTableIfExists('mentions')
   ])
 }
