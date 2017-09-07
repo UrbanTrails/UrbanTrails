@@ -5,3 +5,5 @@ nodemon.json
 .DS_Store
 yarn.lock
 package-lock.json
+yarn-error.log
+src/urban-trails-info.sqlite3

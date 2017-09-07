@@ -3,20 +3,57 @@
   <head>
     <meta charset="utf-8">
     <title>UrbanTrails</title>
-    <link rel="apple-touch-icon" href="./static/icons/iphone.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="./static/icons/touch-icon-ipad.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="./static/icons/touch-icon-iphone-retina.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="./static/icons/touch-icon-ipad-retina.png">
-    <link rel="apple-touch-startup-image" href="/launch.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/static/icons/iphone.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/static/icons/touch-icon-ipad-retina.png">
+    <link rel="apple-touch-startup-image" href="/launch.png">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/mdi/css/materialdesignicons.min.css" media="all" type="text/css" />
+    <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons'/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <link rel="stylesheet" href="/Control.Geocoder.css" />
+    <link rel="stylesheet" type="text/css" href="/css/vuetify.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
   </head>
   <body>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <div id="app"></div>
     <script src="./dist/build.js"></script>
+    <!--<script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(reg) {
+          console.log('Successfully registered service worker', reg);
+        }).catch(function(err) {
+          console.warn('Error whilst registering service worker', err);
+        });
+      }
+
+      window.addEventListener('online', function(e) {
+        // Resync data with server.
+        console.log("You are online");
+        // Page.hideOfflineWarning();
+        // Arrivals.loadData();
+      }, false);
+
+      window.addEventListener('offline', function(e) {
+        // Queue up events for server.
+        console.log("You are offline");
+        // Page.showOfflineWarning();
+      }, false);
+
+      // Check if the user is connected.
+      if (navigator.onLine) {
+        // Arrivals.loadData();
+      } else {
+        // Show offline message
+        // Page.showOfflineWarning();
+      }
+    // </script> -->
   </body>
 </html>

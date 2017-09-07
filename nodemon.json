@@ -1,6 +1,5 @@
 {
   "events": {
-    "start": "lt --port 8000 --subdomain demetrio",
-    "restart": "lt --port 8000 --subdomain demetrio"
+    "start": "lt --port 8000 --subdomain demetrio3"
   }
 }
