@@ -1,10 +1,10 @@
-var path = require('path')
-var webpack = require('webpack')
+import { resolve } from 'path'
+import webpack from 'webpack'
 
-module.exports = {
+export default {
   entry: './src/client/components/main.js',
   output: {
-    path: path.resolve(__dirname, './src/client/dist'),
+    path: resolve(__dirname, './src/client/dist'),
     publicPath: '/dist/',
     filename: 'build.js'
   },
