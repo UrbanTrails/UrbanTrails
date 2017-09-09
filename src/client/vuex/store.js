@@ -32,8 +32,10 @@ axios.defaults.headers.post['Content-Type'] = 'application/JSON'
 const actions = {
   GET_SESSION: ({ commit }) => {
     axios.get('/session').then((response) => {
-      commit('SET_USER', response.data)
-      commit('TOGGLE_SIGNED_IN', true)
+      if(response.data) {
+        commit('SET_USER', response.data)
+        commit('TOGGLE_SIGNED_IN', true)
+      }
     }, (err) => {
       console.log(err)
     })
