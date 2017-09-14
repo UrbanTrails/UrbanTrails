@@ -1,4 +1,4 @@
-html, body, body > div, body > div > div{
+html, body, body > #app, body > #app > div{
   height: 100%;
   width: 100%;
 }

@@ -22,6 +22,15 @@ export function setInitialWaypoint(coords, router) {
                      lng: coords.longitude }
   const newWayPoint = new L.Routing.Waypoint(location, 'Current location')
   router.spliceWaypoints(0, 1, newWayPoint)
+  router.spliceWaypoints(1, 1, newWayPoint)
+  router.spliceWaypoints(2, 1, '')
+}
+
+export function trackCurrentWaypoint(coords, router) {
+  const location = { lat: coords.latitude,
+                   lng: coords.longitude }
+  const trackWaypoint = new L.Routing.Waypoint(location, 'tracked')
+  router.spliceWaypoints(1, 1, trackWaypoint)
 }
 
 export function locate(context, mymap, position, area) {

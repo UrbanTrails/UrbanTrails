@@ -7,7 +7,7 @@
     <v-btn id="location-lock-btn" v-if="!$store.state.viewLocked" @click="locationLock" success dark raised icon><v-icon>mdi-crosshairs-gps</v-icon></v-btn>
     <v-btn id="location-lock-btn" v-if="!$store.state.viewLocked" @click="locationLock" success dark raised icon><v-icon>mdi-crosshairs-gps</v-icon></v-btn>
     <Sidepanel :toggleLayer="toggleLayer"></Sidepanel>
-    <areaReporting></areaReporting>
+    <NavDirections></NavDirections>
   </div>
 </template>
 
@@ -42,6 +42,8 @@
         kiosksClose: [],
         notifiedKiosks: {},
         isNotified: false,
+        // routing popup & nav
+        routePopup: false,
         enRoute: false
       };
     },
@@ -81,11 +83,8 @@
           }
         })
       },
-      route: function() {
-        
-      },
       location: function() {
-        let currentLocation = { latitude: this.$store.getters.location[0], longitude: this.$store.getters.location[1] } 
+        let currentLocation = { latitude: this.$store.getters.location[0], longitude: this.$store.getters.location[1] }
         this.kiosksClose = this.$store.getters.kiosks.filter((data) => {
           const lat = JSON.parse(data[11])
           const long = JSON.parse(data[12])
@@ -235,21 +234,28 @@
         if (navigator.geolocation) {
           navigator.geolocation.watchPosition((position) => {
             if ( !this.$data.enRoute ) {
-              mLocation.setInitialWaypoint(position.coords, router)
-            } 
+              if ( !this.$data.routePopup ) {
+                mLocation.setInitialWaypoint(position.coords, router)
+              }
+            }
+            if ( this.$data.enRoute ) {
+              mLocation.trackCurrentWaypoint(position.coords, router)
+            }
+
           })
         }
-        
+
         const store = this.$store
         const data = this.$data
 
         router.on("routeselected", function (route) {
-          router.hide() 
+          router.hide()
           store.dispatch('FIND_ROUTE', route)
+          data.enRoute = true
         })
 
         router.on("routingToggled", function() {
-          data.enRoute = true
+          data.routePopup?  data.routePopup = false : data.routePopup = true
         })
 
         let position = L.marker([30.269, -97.74]).bindPopup('Configuring your location...').addTo(mymap).openPopup()
@@ -257,12 +263,12 @@
 
         mLocation.locate(this, mymap, position, area, router)
 
-        function getHandlerForFeature(feat) {
-          return function(ev) {
-          }
-        }
+        // function getHandlerForFeature(feat) {
+        //   return function(ev) {
+        //   }
+        // }
 
-        function closeFunc (e) { this.closePanels()}
+        // function closeFunc (e) { this.closePanels()}
 
         function pan (e) {
           this.closePanels()
@@ -304,4 +310,4 @@
   .leaflet-routing-alternatives-container{
       display: none;
 }
-</style> 
+</style>
