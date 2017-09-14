@@ -15,13 +15,13 @@
           <button @click="changeBool('kiosks')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !kiosksBool }" src="/static/rental-bicycle.svg"></img><label>Kiosks</label></button>
           <button @click="changeBool('bikeRacks')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !bikeRacksBool }" src="/static/parking-bicycle.svg"></img><label>Bike Racks</label></button>
 
-          <button @click="changeBool('potholes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !potholesBool }" src="/static/rental-bicycle.svg"></img><label>Potholes</label></button>
-          <button @click="changeBool('mildTraffic')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !mildTrafficBool }" src="/static/rental-bicycle.svg"></img><label>Mild Traffic</label></button>
-          <button @click="changeBool('heavyTraffic')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !heavyTrafficBool }" src="/static/rental-bicycle.svg"></img><label>Heavy Traffic</label></button>
-          <button @click="changeBool('crackedPavement')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !crackedPavementBool }" src="/static/rental-bicycle.svg"></img><label>Cracked Pavement</label></button>
-          <button @click="changeBool('dirtyLanes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !dirtyLanesBool }" src="/static/rental-bicycle.svg"></img><label>DIrty Lanes</label></button>
-          <button @click="changeBool('bikeFriendlyBusiness')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !bikeFriendlyBusinessBool }" src="/static/rental-bicycle.svg"></img><label>Bike Friendly Store</label></button>
-          <button @click="changeBool('scenicAreas')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !scenicAreasBool }" src="/static/rental-bicycle.svg"></img><label>Scenic Areas</label></button>
+          <button @click="changeBool('potholes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !potholesBool }" src="/static/icons/pothole.svg"></img><label>Potholes</label></button>
+          <button @click="changeBool('mildTraffic')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !mildTrafficBool }" src="/static/icons/mild.svg"></img><label>Mild Traffic</label></button>
+          <button @click="changeBool('heavyTraffic')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !heavyTrafficBool }" src="/static/icons/stop.svg"></img><label>Heavy Traffic</label></button>
+          <button @click="changeBool('crackedPavement')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !crackedPavementBool }" src="/static/icons/cone.svg"></img><label>Cracked Pavement</label></button>
+          <button @click="changeBool('dirtyLanes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !dirtyLanesBool }" src="/static/icons/trash.svg"></img><label>Dirty Lanes</label></button>
+          <button @click="changeBool('bikeFriendlyBusiness')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !bikeFriendlyBusinessBool }" src="/static/icons/store.svg"></img><label>Bike Friendly Store</label></button>
+          <button @click="changeBool('scenicAreas')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !scenicAreasBool }" src="/static/icons/camera.svg"></img><label>Scenic Areas</label></button>
 
 
           <v-switch @click="changeBool('trails')" v-bind:label="`Trails`" v-model="trailsBool" light hide-details></v-switch>

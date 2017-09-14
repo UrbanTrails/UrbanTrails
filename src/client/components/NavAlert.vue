@@ -34,12 +34,13 @@
 </script>
 <style scoped>
   #slide-inContainer {
-    width: 100%;
+    width: 99%;
+    padding-left: 20px;
   }
 
   #notification {
     position: relative;
-    width: 100%;
+    width: 99%;
     height: 40px;
     background-color: transperant;
     top: -20px;

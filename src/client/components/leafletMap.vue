@@ -25,7 +25,6 @@
         map: 'blah',
         mainLightLayer: null,
         mainDarkLayer: null,
-        //API data layer status
         trailsLayer: null,
         fixitsLayer: null,
         kiosksLayer: null,
@@ -52,7 +51,7 @@
       this.$store.dispatch('LOAD_KIOSKS')
       this.$store.dispatch('LOAD_TRAILS')
       this.$store.dispatch('LOAD_FIXITS')
-      //User reported issues
+
       this.$store.dispatch('LOAD_POTHOLES')
       this.$store.dispatch('LOAD_MILD_TRAFFIC')
       this.$store.dispatch('LOAD_HEAVY_TRAFFIC')
