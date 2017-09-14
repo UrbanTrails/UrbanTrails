@@ -31,12 +31,13 @@ const state = {
   bikeFriendlyBusiness: [],
   scenicAreas: [],
   otherCommendations: [],
+  route: [],
   // location tracking
   location: null,
   viewLocked: true
 }
 
-// defeault axios headers
+// default axios headers
 axios.defaults.headers.post['Content-Type'] = 'application/JSON'
 
 const actions = {
@@ -49,6 +50,10 @@ const actions = {
     }, (err) => {
       console.log(err)
     })
+  },
+
+  FIND_ROUTE: ({ commit }, route) => {
+    commit('SET_ROUTE', route)
   },
 
   FIND_LOCATION: ({ commit }) => {
@@ -204,6 +209,7 @@ const actions = {
 }
 
 const mutations = {
+  SET_ROUTE(state, { route }) { state.route = route },
   SET_LOCATION(state, { location }) { state.location = location },
   SET_MOBILE(state, mobile) { state.mobile = mobile },
   SET_USER(state, user) { state.user = user },
@@ -230,6 +236,7 @@ const mutations = {
 }
 
 const getters = {
+  route: state => state.route,
   location: state => state.location,
   kiosks: state => state.kiosks,
   fixits: state => state.fixits,

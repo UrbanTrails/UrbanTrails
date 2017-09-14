@@ -17,14 +17,14 @@ export function setView(context, mymap) {
   }
 }
 
-function setInitialWaypoint(coords, router) {
+export function setInitialWaypoint(coords, router) {
   const location = { lat: coords.latitude,
                      lng: coords.longitude }
   const newWayPoint = new L.Routing.Waypoint(location, 'Current location')
   router.spliceWaypoints(0, 1, newWayPoint)
 }
 
-export function locate(context, mymap, position, area, router) {
+export function locate(context, mymap, position, area) {
   function onLocationFound(e) {
     radius = e.accuracy / 2
     latln = { lat: e.latitude, lng: e.longitude }
@@ -44,7 +44,6 @@ export function locate(context, mymap, position, area, router) {
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition((position) => {
       onLocationFound(position.coords)
-      setInitialWaypoint(position.coords, router)
     })
   }
   accuratePosition.findAccuratePosition.bind(this, { maxWait: 15000, desiredAccuracy: 10, enableHighAccuracy: true })
