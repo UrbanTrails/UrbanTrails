@@ -265,6 +265,7 @@
 
         router.on("routingToggled", function() {
           data.routePopup?  data.routePopup = false : data.routePopup = true
+          store.state.NavDirectionsOpen?  store.commit('TOGGLE_NAVDIRECTIONS', false) : store.commit('TOGGLE_NAVDIRECTIONS', true)
         })
 
         let position = L.marker([30.269, -97.74]).bindPopup('Configuring your location...').addTo(mymap).openPopup()
