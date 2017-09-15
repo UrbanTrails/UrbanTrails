@@ -22,6 +22,7 @@
           <button @click="changeBool('dirtyLanes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !dirtyLanesBool }" src="/static/icons/trash.svg"></img><label>Dirty Lanes</label></button>
           <button @click="changeBool('bikeFriendlyBusiness')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !bikeFriendlyBusinessBool }" src="/static/icons/store.svg"></img><label>Bike Friendly Store</label></button>
           <button @click="changeBool('scenicAreas')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !scenicAreasBool }" src="/static/icons/camera.svg"></img><label>Scenic Areas</label></button>
+          <button @click="changeBool('otherCommendations')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !otherCommendationsBool }" src="/static/icons/mention.svg"></img><label>Other</label></button>
 
 
           <v-switch @click="changeBool('trails')" v-bind:label="`Trails`" v-model="trailsBool" light hide-details></v-switch>
@@ -59,6 +60,7 @@
           bikeRacksBool : true,
           bikeFriendlyBusinessBool : true,
           scenicAreasBool : true,
+          otherCommendationsBool: true,
         }
       },
       mounted() {
@@ -93,7 +95,7 @@
   #hamburger {
     position: fixed;
     top: 12px;
-    right: 12px;
+    right: 2px;
     height: 48px;
     width: 48px;
   }
@@ -134,7 +136,6 @@
     max-height: 715px;
     overflow: auto;
   }
-
 
   .toggleBtn {
     width: 100%;

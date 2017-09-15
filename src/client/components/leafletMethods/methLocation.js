@@ -33,27 +33,45 @@ export function trackCurrentWaypoint(coords, router) {
   router.spliceWaypoints(1, 1, trackWaypoint)
 }
 
-export function locate(context, mymap, position, area) {
-  function onLocationFound(e) {
-    radius = e.accuracy / 2
-    latln = { lat: e.latitude, lng: e.longitude }
+export function locate(context, mymap, pin, area, router) {
+  function onLocationFound(watchPosition) {
+    // routing
+    if (!context.$data.enRoute) {
+      if (!context.$data.routePopup) {
+      setInitialWaypoint(watchPosition.coords, router)
+      }
+    }
+    if (context.$data.enRoute && !context.$data.routePopup) {
+      trackCurrentWaypoint(watchPosition.coords, router)
+    }
+    // end routing
+
+    radius = watchPosition.coords.accuracy / 2
+    latln = { lat: watchPosition.coords.latitude, lng: watchPosition.coords.longitude }
 
     // sets marker/circle at current location
-    mymap.removeLayer(position)
+    mymap.removeLayer(pin)
     mymap.removeLayer(area)
-    position = L.marker([latln.lat, latln.lng])
+    pin = L.marker([latln.lat, latln.lng])
       .bindPopup(`You are within ${radius} meters from this point`).addTo(mymap)
     area = L.circle(latln, radius).addTo(mymap)
     // pans/zooms to current location
     setView(context, mymap)
   }
+  function geolocationError(err) {
+    console.log(err)
+  }
   // mymap.on('locationFound', onLocationFound)
 
   // updates location based on navigator
   if (navigator.geolocation) {
-    navigator.geolocation.watchPosition((position) => {
-      onLocationFound(position.coords)
-    })
+    navigator.geolocation.watchPosition(onLocationFound, geolocationError,
+     {
+         timeout: 0,
+         enableHighAccuracy: true,
+         maximumAge: Infinity
+     })
   }
+
   accuratePosition.findAccuratePosition.bind(this, { maxWait: 15000, desiredAccuracy: 10, enableHighAccuracy: true })
 }

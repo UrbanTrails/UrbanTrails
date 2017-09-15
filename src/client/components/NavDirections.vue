@@ -1,26 +1,61 @@
-<template>
-  <div id="routing-directions">
-    <transition-group name="slide-up-fade" tag="div">
-      <div class="instructions" v-for="(inst, index) in $data.instructions" :key="inst.index" v-show="((inst.index > $store.state.route.waypointIndices[1]) && (index < $data.showCount))  && routePopupClosed">
-        <v-card>
-          <v-card-title primary-title>
-            <p> {{inst.type}} {{ inst.text }} </p>
-          </v-card-title>
-          {{inst.distance}}
-          testing: {{index}} {{$store.state.route.waypointIndices[1]}}
-        </v-card>
-      </div>
-    </transition-group>
-  </div>
-</template>
+ <template>
+   <div id="routing-directions">
+     <transition name="slide-up-fade">
+       <div v-show="$store.state.NavDirectionsOpen">
+         <div class="instructions" v-for="(inst, index) in $store.state.route.instructions" :key="inst.index" v-show="(inst.index > $store.state.route.waypointIndices[1]) && ((index > $data.currentIndex) && ($data.currentIndex + $data.showCount >= index))">
+           <v-card>
+             <v-card-title primary-title>
+               <p> {{inst.type}} {{ inst.text }} </p>
+             </v-card-title>
+             {{inst.distance}}
+             testing: {{index}} {{$store.state.route.waypointIndices[1]}}
+           </v-card>
+         </div>
+       </div>
+     </transition>
+   </div>
+ </template>
 
 <script>
+  {/* <template>
+    <div id="routing-directions">
+      <transition-group name="slide-up-fade" tag="div">
+    <div class="instructions" v-for="(inst, index) in $store.state.route.instructions" :key="inst.index" v-show="(inst.index > $store.state.route.waypointIndices[1]) && ((index > $data.currentIndex) && ($data.currentIndex + $data.showCount >= index))">
+    <v-card>
+    <v-card-title primary-title>
+    <p> {{inst.type}} {{ inst.text }} </p>
+    </v-card-title>
+    {{inst.distance}}
+    testing: {{index}} {{$store.state.route.waypointIndices[1]}}
+    </v-card>
+    </div>
+      </transition-group>
+    </div>
+  </template> */}
+
+  {/* <template>
+    <div id="routing-directions">
+      <transition name="slide-up-fade">
+    <div v-show="routePopupClosed">
+    <div class="instructions" v-for="(inst, index) in $data.instructions" :key="inst.index" v-show="(inst.index > $store.state.route.waypointIndices[1]) && (index < $data.showCount)">
+    <v-card>
+    <v-card-title primary-title>
+    <p> {{inst.type}} {{ inst.text }} </p>
+    </v-card-title>
+    {{inst.distance}}
+    testing: {{index}} {{$store.state.route.waypointIndices[1]}}
+    </v-card>
+    </div>
+    </div>
+      </transition>
+    </div>
+  </template> */}
+
   export default {
-    props: ['routePopup'],
     data() {
       return {
         showCount: 2,
-        instructions: [],
+        currentIndex: 0,
       }
     },
     watch: {
@@ -28,17 +63,17 @@
         this.$data.instructions = []
         let current = this.$store.state.route.waypointIndices[1]
         let all = this.$store.state.route.instructions
-        for (let inst of all ) {
-          if (inst.index > current) {
-            this.$data.instructions.push(inst)
+        for (let i = 0; i < all.length; i++) {
+          if (all[i].index === current) {
+            this.$data.currentIndex = i
           }
         }
       }
     },
     computed: {
       route: function() { return this.$store.getters.route },
-      routePopupClosed: function () { return !this.routePopup }
-    }
+    },
+
   }
 </script>
 <style>
@@ -52,7 +87,8 @@
 
   #routing-directions > div{
     display: inline-block;
-    min-width: 350px;
+    min-width: 300px;
+    width: 90%;
     // background-color: white;
   }
   .instructions {

@@ -5,7 +5,6 @@
       <NavAlert :notifiedKiosks="this.notifiedKiosks" :isNotified="this.isNotified"></NavAlert>
     </div>
     <v-btn id="location-lock-btn" v-if="!$store.state.viewLocked" @click="locationLock" success dark raised icon><v-icon>mdi-crosshairs-gps</v-icon></v-btn>
-    <v-btn id="location-lock-btn" v-if="!$store.state.viewLocked" @click="locationLock" success dark raised icon><v-icon>mdi-crosshairs-gps</v-icon></v-btn>
     <Sidepanel :toggleLayer="toggleLayer"></Sidepanel>
     <areaReporting></areaReporting>
     <NavDirections :routePopup="this.routePopup"></NavDirections>
@@ -150,6 +149,11 @@
           this.$store.commit('TOGGLE_VIEW_SIGN_IN', false)
         }
       },
+      hideNavigation() {
+        if (this.$store.state.NavDirectionsOpen) {
+          this.$store.commit('TOGGLE_NAVDIRECTIONS', false)
+        }
+      },
       locationLock() {
         this.$store.commit('TOGGLE_VIEW_LOCKED', true)
         mLocation.setView(this, this.$data.map, false)
@@ -187,6 +191,7 @@
         var mymap = L.map('mapid', {
             center: [30.269, -97.743],
             zoom: 13,
+            zoomControl: false,
             layers: [
             // this.$data.mainDarkLayer,
             this.$data.mainLightLayer,
@@ -218,11 +223,13 @@
 
         this.$data.map = mymap
 
+        L.control.zoom({position: 'topright'}).addTo(mymap)
+
         let router = L.Routing.control({
           router: L.Routing.mapbox(mapboxKey),
           position: "topleft",
           fitSelectedRoutes: true,
-          showAlternatives: true,
+          showAlternatives: false,
           altLineOptions: {styles: [{color: 'gray'}]},
           reverseWaypoints: true,
           routeWhileDragging: true,
@@ -232,19 +239,19 @@
         }).addTo(mymap)
 
         //map location
-        if (navigator.geolocation) {
-          navigator.geolocation.watchPosition((position) => {
-            if ( !this.$data.enRoute ) {
-              if ( !this.$data.routePopup ) {
-                mLocation.setInitialWaypoint(position.coords, router)
-              }
-            }
-            if ( this.$data.enRoute && !this.$data.routePopup) {
-              mLocation.trackCurrentWaypoint(position.coords, router)
-            }
-
-          })
-        }
+        // if (navigator.geolocation) {
+        //   navigator.geolocation.watchPosition((position) => {
+        //     // if ( !this.$data.enRoute ) {
+        //     //   if ( !this.$data.routePopup ) {
+        //     //     mLocation.setInitialWaypoint(position.coords, router)
+        //     //   }
+        //     // }
+        //     // if ( this.$data.enRoute && !this.$data.routePopup) {
+        //     //   mLocation.trackCurrentWaypoint(position.coords, router)
+        //     // }
+        //
+        //   })
+        // }
 
         const store = this.$store
         const data = this.$data
@@ -258,6 +265,7 @@
 
         router.on("routingToggled", function() {
           data.routePopup?  data.routePopup = false : data.routePopup = true
+          store.state.NavDirectionsOpen?  store.commit('TOGGLE_NAVDIRECTIONS', false) : store.commit('TOGGLE_NAVDIRECTIONS', true)
         })
 
         let position = L.marker([30.269, -97.74]).bindPopup('Configuring your location...').addTo(mymap).openPopup()
@@ -272,14 +280,19 @@
 
         // function closeFunc (e) { this.closePanels()}
 
-        function pan (e) {
+        function panStart (e) {
           this.closePanels()
           this.$store.commit('TOGGLE_VIEW_LOCKED', false)
+        }
+
+        function panEnd (e) {
+          this.$store.commit('TOGGLE_NAVDIRECTIONS', true)
         }
 
 
         function click (e) {
           this.closePanels()
+          this.hideNavigation()
           let position = [e.latlng.lat, e.latlng.lng];
           document.getElementsByClassName('closure')[0].setAttribute('id', 'active')
           var reports = document.getElementsByClassName('reporting');
@@ -289,7 +302,8 @@
 
         //Captures clicks on the map
         mymap.on('click', click.bind(this));
-        mymap.on('movestart', pan.bind(this))
+        mymap.on('movestart', panStart.bind(this))
+        // mymap.on('moveend', panEnd.bind(this))
       },
     }
   }
@@ -304,9 +318,11 @@
     transition: width .5s, height .5s;
   }
   #location-lock-btn {
-    position: absolute;
-    top: 140px;
-    left: 0px;
+    position: fixed;
+    top: 254px;
+    right: 4px;
+    height: 40px;
+    width: 40px;
     z-index: 1050;
   }
   .leaflet-routing-alternatives-container{
