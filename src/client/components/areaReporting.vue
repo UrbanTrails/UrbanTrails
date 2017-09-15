@@ -66,9 +66,11 @@
         document.getElementById('active').removeAttribute('id')
       },
 
-      closeReport: () => {
+      closeReport() {
         document.getElementById('selected').removeAttribute('id')
         document.getElementById('active').removeAttribute('id')
+        console.log('here')
+        this.$store.commit('TOGGLE_NAVDIRECTIONS', true)
       }
     }
   }

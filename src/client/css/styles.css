@@ -11,10 +11,6 @@ html {
   z-index: 1010 !important
 }
 
-.overEverything {
-  z-index: 1050 !important
-}
-
 .base { /*temporary until styles is set */
   background-color: white;
 }

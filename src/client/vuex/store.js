@@ -16,6 +16,8 @@ const state = {
   user: null,
   // Sidepanel
   sidePanelOpen: false,
+  // NavDirections
+  NavDirectionsOpen: false,
   // leafletMap
   kiosks: [],
   fixits: [],
@@ -62,7 +64,7 @@ const actions = {
     })
   },
 
-  POST_REPORT: (skipThisVal, reportInfo) => {
+  POST_REPORT: ({ commit }, reportInfo) => {
     axios.post('/report', {
       reportType: reportInfo.reportType,
       reportContent: reportInfo.reportContent,
@@ -74,6 +76,9 @@ const actions = {
         console.log(`Status: ${response.status} ${response.statusText}, Posted your report!`)
       }, (err) => {
         console.log('ERROR', err)
+      })
+      .then(() => {
+        commit('TOGGLE_NAVDIRECTIONS', true)
       })
   },
 
@@ -216,6 +221,7 @@ const mutations = {
   TOGGLE_SIGNED_IN(state, bool) { state.signedIn = bool },
   TOGGLE_AUTHFAIL(state, obj) { state.authfail = obj },
   TOGGLE_SIDEPANEL(state) { state.sidePanelOpen = !state.sidePanelOpen },
+  TOGGLE_NAVDIRECTIONS(state, bool) { state.NavDirectionsOpen = bool },
   TOGGLE_VIEW_SIGN_IN(state, bool) { if (!state.signedIn) state.viewSignIn = bool },
   TOGGLE_SIOU_ACTIVE(state, active) { state.SiouActive = active },
   SET_KIOSKS(state, { kiosks }) { state.kiosks = kiosks },

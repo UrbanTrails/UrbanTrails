@@ -22,7 +22,7 @@
           <button @click="changeBool('dirtyLanes')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !dirtyLanesBool }" src="/static/icons/trash.svg"></img><label>Dirty Lanes</label></button>
           <button @click="changeBool('bikeFriendlyBusiness')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !bikeFriendlyBusinessBool }" src="/static/icons/store.svg"></img><label>Bike Friendly Store</label></button>
           <button @click="changeBool('scenicAreas')" class="toggleBtn input-group"><img v-bind:class="{ greyBtn: !scenicAreasBool }" src="/static/icons/camera.svg"></img><label>Scenic Areas</label></button>
-          
+
           <v-switch @click="changeBool('trails')" v-bind:label="`Trails`" v-model="trailsBool" light hide-details></v-switch>
           <v-switch @click="toggleMainLayer()" v-bind:label="`Dark`" v-model="mainDarkBool" light hide-details></v-switch>
         </div>
@@ -104,6 +104,7 @@
     height: 100%;
     width: 250px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    z-index: 1055;
   }
 
   #sidepanel-heading {
