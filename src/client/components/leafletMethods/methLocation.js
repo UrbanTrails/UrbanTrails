@@ -35,17 +35,16 @@ export function trackCurrentWaypoint(coords, router) {
 
 export function locate(context, mymap, pin, area, router) {
   function onLocationFound(watchPosition) {
-
-    //routing
-    if ( !context.$data.enRoute ) {
-      if ( !context.$data.routePopup ) {
+    // routing
+    if (!context.$data.enRoute) {
+      if (!context.$data.routePopup) {
       setInitialWaypoint(watchPosition.coords, router)
       }
     }
-    if ( context.$data.enRoute && !context.$data.routePopup) {
+    if (context.$data.enRoute && !context.$data.routePopup) {
       trackCurrentWaypoint(watchPosition.coords, router)
     }
-    //end routing
+    // end routing
 
     radius = watchPosition.coords.accuracy / 2
     latln = { lat: watchPosition.coords.latitude, lng: watchPosition.coords.longitude }
@@ -60,7 +59,7 @@ export function locate(context, mymap, pin, area, router) {
     setView(context, mymap)
   }
   function geolocationError(err) {
-    console.log(err);
+    console.log(err)
   }
   // mymap.on('locationFound', onLocationFound)
 
@@ -74,7 +73,5 @@ export function locate(context, mymap, pin, area, router) {
      })
   }
 
-
-
-  // accuratePosition.findAccuratePosition.bind(this, { maxWait: 15000, desiredAccuracy: 10, enableHighAccuracy: true })
+  accuratePosition.findAccuratePosition.bind(this, { maxWait: 15000, desiredAccuracy: 10, enableHighAccuracy: true })
 }

@@ -77,7 +77,7 @@ const actions = {
       }, (err) => {
         console.log('ERROR', err)
       })
-      .then(() =>{
+      .then(() => {
         commit('TOGGLE_NAVDIRECTIONS', true)
       })
   },
